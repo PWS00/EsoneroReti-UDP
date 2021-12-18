@@ -8,10 +8,8 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#define PRECISION 5
 #include <string.h> /* for memset() */
-#define ECHOMAX 255
-#define PORT 48000
+#include "header.h"
 void ErrorHandler(char *errorMessage) {
 printf(errorMessage);
 }
@@ -48,19 +46,19 @@ int cliAddrLen;
 int recvMsgSize;
 
 
-// CREAZIONE DELLA SOCKET
+// CREATION OF THE SOCKET
 if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 ErrorHandler("socket() failed");
 
 
-// COSTRUZIONE DELL'INDIRIZZO DEL SERVER
+// CONSTRUCTION OF THE SERVER ADDRESS
 memset(&echoServAddr, 0, sizeof(echoServAddr));
 echoServAddr.sin_family = AF_INET;
 echoServAddr.sin_port = htons(PORT);
 echoServAddr.sin_addr.s_addr = inet_addr("127.0.0.2"); //era 0.1
 
 
-// BIND DELLA SOCKET
+//  SOCKET BIND
 if ((bind(sock, (struct sockaddr *)&echoServAddr, sizeof(echoServAddr))) < 0)
 ErrorHandler("bind() failed");
 
@@ -76,12 +74,9 @@ char* canonical_name_c = host->h_name;
 
 
 
-// RICEZIONE DELLA STRINGA ECHO DAL CLIENT
+// RECEIVING THE ECHO STRING FROM THE CLIENT
 while(1) {
 cliAddrLen = sizeof(echoClntAddr);
-
-
-//printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
 
 do{
 	frcv=recvfrom(sock, &function, ECHOMAX, 0, (struct sockaddr*)&echoClntAddr, &cliAddrLen);
@@ -111,15 +106,6 @@ do{
 			if (sendto(sock, resultchar, recvMsgSize, 0, (struct sockaddr *)&echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize)  ErrorHandler("sendto() sent different number of bytes than expected\n");
 			fflush(stdin);
 			}while(function!='=');
-
-
-
-
-
- /* //RINVIA LA STRINGA ECHO AL CLIENT
- recvMsgSize=sizeof(echoBuffer);
-if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *)&echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize)
-ErrorHandler("sendto() sent different number of bytes than expected");*/
 }
 }
 

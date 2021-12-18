@@ -7,10 +7,8 @@
 #include <unistd.h>
 #endif
 #include <stdio.h>
-#define PRECISION 5
 #include <string.h> /* for memset() */
-#define ECHOMAX 255
-#define PORT 48000
+#include "header.h"
 void ErrorHandler(char *errorMessage) {
 printf(errorMessage);
 }
@@ -36,11 +34,6 @@ printf ("error at WSASturtup\n");
 return EXIT_FAILURE;
 }
 #endif
-
-
-
-	//struct hostent *gethostbyname(const char *hostname);
-	//struct hostent *gethostbyaddr(const char* struct_in_addr, int addr_len_in_bytes, int addr_family_type);
 
 	const char * name = "localhost";
 	struct hostent *host;
@@ -73,10 +66,6 @@ struct sockaddr_in fromAddr;
 int fromSize;
 int echoStringLen;
 
-/*printf("Inserisci la stringa echo da inviare al server\n");
-scanf("%s", echoString);
-if ((echoStringLen = strlen(echoString)) > ECHOMAX) ErrorHandler("echo word too long");*/
-
 char resultchar[PRECISION], achar[PRECISION], bchar[PRECISION];
 	char function;
 	float result=0;
@@ -84,25 +73,24 @@ char resultchar[PRECISION], achar[PRECISION], bchar[PRECISION];
 
 
 
-// CREAZIONE DELLA SOCKET
+// CREATION OF THE SOCKET
 if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) ErrorHandler("socket() failed");
 
 
-// COSTRUZIONE DELL'INDIRIZZO DEL SERVER
+// CONSTRUCTION OF THE SERVER ADDRESS
 memset(&echoServAddr, 0, sizeof(echoServAddr));
 echoServAddr.sin_family = PF_INET;
 echoServAddr.sin_port = htons(PORT);
-echoServAddr.sin_addr.s_addr = inet_addr("127.0.0.2"); //era 0.1
+echoServAddr.sin_addr.s_addr = inet_addr("127.0.0.2");
 
 
 host = gethostbyaddr((char *) &fromAddr, 4, AF_INET);
 char* canonical_name_server = host->h_name;
 printf("%s:%d\n", canonical_name_server,htons(PORT));
 char* ip_server =  inet_ntoa(echoServAddr.sin_addr);
-printf("ip server : %s\n", ip_server);
 
 
-//Calcolatrice
+//CALCULATOR
 
 do{
 		do{
@@ -134,7 +122,7 @@ do{
 		if ((echoStringLen = strlen(bchar)) > ECHOMAX) ErrorHandler("echo word too long");
 		if ((echoStringLen = strlen(&function)) > ECHOMAX) ErrorHandler("echo word too long");
 
-	// INVIO DELLA STRINGA AL SERVER
+	// SENDING THE STRING TO THE SERVER
 		echoStringLen=sizeof(function);
 		if (sendto(sock, &function, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		{
@@ -143,7 +131,7 @@ do{
 		ClearWinSock();
 		return -1;
 		}
-	// INVIO DELLA STRINGA AL SERVER
+	//SENDING THE STRING TO THE SERVER
 	    echoStringLen=sizeof(achar);
 		if (sendto(sock, achar, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		{
@@ -152,7 +140,7 @@ do{
 		ClearWinSock();
 		return -1;
 		}
-	// INVIO DELLA STRINGA AL SERVER
+	// SENDING THE STRING TO THE SERVER
 		echoStringLen=sizeof(bchar);
 		if (sendto(sock, bchar, echoStringLen, 0, (struct sockaddr*)&echoServAddr, sizeof(echoServAddr)) != echoStringLen)
 		{
@@ -163,7 +151,7 @@ do{
 		}
 
 
-	// RITORNO DELLA STRINGA CON RISULTATO
+	// RETURN OF STRING WITH RESULT
 	fromSize = sizeof(fromAddr);
 	resulcharleng=recvfrom(sock, resultchar, ECHOMAX, 0, (struct sockaddr*)&fromAddr, &fromSize);
 	if (echoServAddr.sin_addr.s_addr != fromAddr.sin_addr.s_addr) {
@@ -182,6 +170,5 @@ do{
 
 closesocket(sock);
 ClearWinSock();
-system("pause");
 return EXIT_SUCCESS;
 }
